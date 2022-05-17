@@ -8,13 +8,13 @@ use std::path::PathBuf;
 /// A simple 2-vector
 #[derive(Debug, PartialEq)]
 pub struct Vec2 {
-    x: u32,
-    y: u32,
+    x: i32,
+    y: i32,
 }
 
 impl Vec2 {
     /// Create a new 2-vector
-    pub fn new(x: u32, y: u32) -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         Vec2 { x, y }
     }
 }

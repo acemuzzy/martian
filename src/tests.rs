@@ -52,4 +52,31 @@ mod tests {
             )
         );
     }
+
+    /// Test we can move a martian (first OK example)
+    #[test]
+    fn test_movement() {
+        let mut m: Martian = Martian::from_strings(vec![
+            "5 3".to_string(),
+            "1 1 E".to_string(),
+            "RFRFRFRF".to_string(),
+        ]);
+
+        m.attempt_movements();
+
+        assert_eq!(format!("{}", m), "1 1 E");
+    }
+
+    /// Test movement out of bounds fails
+    #[test]
+    #[should_panic]
+    fn test_movement_oob() {
+        let mut m: Martian = Martian::from_strings(vec![
+            "5 3".to_string(),
+            "3 2 N".to_string(),
+            "FRRFLLFFRRFLL".to_string(),
+        ]);
+
+        m.attempt_movements();
+    }
 }

@@ -2,6 +2,7 @@
 
 use crate::{get_file_content, Vec2};
 use regex::Regex;
+use std::fmt;
 use std::path::PathBuf;
 
 /// Directions in which the martian may face
@@ -28,6 +29,24 @@ pub struct Martian {
     location: Vec2,
     direction: Direction,
     instructions: Vec<Movement>,
+}
+
+/// String form of the martian (as used e.g. in successful output)
+impl fmt::Display for Martian {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{} {} {}",
+            self.location.x,
+            self.location.y,
+            match self.direction {
+                Direction::North => "N",
+                Direction::South => "S",
+                Direction::East => "E",
+                Direction::West => "W",
+            }
+        )
+    }
 }
 
 impl Martian {
@@ -94,5 +113,48 @@ impl Martian {
     pub fn from_file(filename: &PathBuf) -> Self {
         let input = get_file_content(filename);
         Martian::from_strings(input)
+    }
+
+    /// Attempt to move the martian
+    pub fn attempt_movements(&mut self) {
+        for instruction in &self.instructions {
+            match instruction {
+                Movement::Left => {
+                    self.direction = match self.direction {
+                        Direction::North => Direction::West,
+                        Direction::West => Direction::South,
+                        Direction::South => Direction::East,
+                        Direction::East => Direction::North,
+                    };
+                }
+                Movement::Right => {
+                    self.direction = match self.direction {
+                        Direction::North => Direction::East,
+                        Direction::East => Direction::South,
+                        Direction::South => Direction::West,
+                        Direction::West => Direction::North,
+                    };
+                }
+                Movement::Forward => {
+                    match self.direction {
+                        Direction::North => self.location.y += 1,
+                        Direction::East => self.location.x += 1,
+                        Direction::South => self.location.y -= 1,
+                        Direction::West => self.location.x -= 1,
+                    }
+
+                    if self.out_of_bounds() {
+                        panic!("LOST");
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn out_of_bounds(&self) -> bool {
+        (self.location.y > self.bounds.y)
+            || (self.location.y < 0)
+            || (self.location.x > self.bounds.x)
+            || (self.location.x < 0)
     }
 }

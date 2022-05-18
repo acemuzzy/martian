@@ -1,5 +1,7 @@
 //! Library module with various utility functions
+pub mod direction;
 pub mod martian;
+pub mod movement;
 mod tests;
 
 use std::fs;

@@ -1,26 +1,12 @@
 //! Main martian module, with code to handle its instantiation and movement
 
+use crate::direction::Direction;
+use crate::movement::Movement;
 use crate::{get_file_content, Vec2};
+
 use regex::Regex;
 use std::fmt;
 use std::path::PathBuf;
-
-/// Directions in which the martian may face
-#[derive(Debug, PartialEq)]
-pub enum Direction {
-    North,
-    South,
-    East,
-    West,
-}
-
-/// Movements the martian may perform
-#[derive(Debug, PartialEq)]
-pub enum Movement {
-    Forward,
-    Left,
-    Right,
-}
 
 /// The martian structure itself
 #[derive(Debug, PartialEq)]
@@ -37,14 +23,7 @@ impl fmt::Display for Martian {
         write!(
             f,
             "{} {} {}",
-            self.location.x,
-            self.location.y,
-            match self.direction {
-                Direction::North => "N",
-                Direction::South => "S",
-                Direction::East => "E",
-                Direction::West => "W",
-            }
+            self.location.x, self.location.y, self.direction
         )
     }
 }
@@ -120,20 +99,10 @@ impl Martian {
         for instruction in &self.instructions {
             match instruction {
                 Movement::Left => {
-                    self.direction = match self.direction {
-                        Direction::North => Direction::West,
-                        Direction::West => Direction::South,
-                        Direction::South => Direction::East,
-                        Direction::East => Direction::North,
-                    };
+                    self.direction = self.direction.rotate_left();
                 }
                 Movement::Right => {
-                    self.direction = match self.direction {
-                        Direction::North => Direction::East,
-                        Direction::East => Direction::South,
-                        Direction::South => Direction::West,
-                        Direction::West => Direction::North,
-                    };
+                    self.direction = self.direction.rotate_right();
                 }
                 Movement::Forward => {
                     match self.direction {

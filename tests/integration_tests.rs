@@ -2,7 +2,9 @@
 
 extern crate martian;
 
-use martian::martian::{Direction, Martian, Movement};
+use martian::direction::Direction;
+use martian::martian::Martian;
+use martian::movement::Movement;
 use martian::Vec2;
 
 use std::path::PathBuf;

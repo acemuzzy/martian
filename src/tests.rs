@@ -3,7 +3,9 @@
 #[cfg(test)]
 mod tests {
 
-    use crate::martian::{Direction, Martian, Movement};
+    use crate::direction::Direction;
+    use crate::martian::Martian;
+    use crate::movement::Movement;
     use crate::Vec2;
 
     /// Test we can parse a martian from a simple set of strings

@@ -5,6 +5,7 @@ pub mod movement;
 mod tests;
 
 use std::fs;
+use std::ops;
 use std::path::PathBuf;
 
 /// A simple 2-vector
@@ -18,6 +19,21 @@ impl Vec2 {
     /// Create a new 2-vector
     pub fn new(x: i32, y: i32) -> Self {
         Vec2 { x, y }
+    }
+}
+
+impl ops::AddAssign for Vec2 {
+    fn add_assign(&mut self, rhs: Vec2) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
+impl ops::Mul<i32> for Vec2 {
+    type Output = Vec2;
+
+    fn mul(self, rhs: i32) -> Vec2 {
+        Vec2::new(self.x * rhs, self.y * rhs)
     }
 }
 

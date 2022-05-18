@@ -96,7 +96,7 @@ impl Martian {
 
     /// Attempt to move the martian
     pub fn attempt_movements(&mut self) {
-        for instruction in &self.instructions {
+        for instruction in self.instructions.clone() {
             match instruction {
                 Movement::Left => {
                     self.direction = self.direction.rotate_left();
@@ -105,21 +105,41 @@ impl Martian {
                     self.direction = self.direction.rotate_right();
                 }
                 Movement::Forward => {
-                    match self.direction {
-                        Direction::North => self.location.y += 1,
-                        Direction::East => self.location.x += 1,
-                        Direction::South => self.location.y -= 1,
-                        Direction::West => self.location.x -= 1,
-                    }
+                    self.move_forwards();
 
                     if self.out_of_bounds() {
+                        self.move_backwards();
+                        println!("{} LOST", &self);
                         panic!("LOST");
                     }
                 }
             }
         }
+
+        println!("{}", &self);
     }
 
+    /// Get a forrward movement vector, based of the martian's current direction
+    pub fn forward_vector(&self) -> Vec2 {
+        match self.direction {
+            Direction::North => Vec2::new(0, 1),
+            Direction::East => Vec2::new(1, 0),
+            Direction::South => Vec2::new(0, -1),
+            Direction::West => Vec2::new(-1, 0),
+        }
+    }
+
+    /// Move the martian one space in the direction it's facing
+    pub fn move_forwards(&mut self) {
+        self.location += self.forward_vector();
+    }
+
+    /// Move the martian one space in the opposite direction to how it's facing
+    pub fn move_backwards(&mut self) {
+        self.location += self.forward_vector() * -1;
+    }
+
+    /// Check if out of bounds
     pub fn out_of_bounds(&self) -> bool {
         (self.location.y > self.bounds.y)
             || (self.location.y < 0)

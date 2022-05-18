@@ -1,3 +1,5 @@
+//! Direction module
+
 use std::fmt;
 
 /// Directions in which the martian may face

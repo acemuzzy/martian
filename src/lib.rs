@@ -1,8 +1,12 @@
 //! Library module with various utility functions
 pub mod direction;
+pub mod map;
 pub mod martian;
 pub mod movement;
 mod tests;
+
+use crate::map::Map;
+use crate::martian::Martian;
 
 use std::fs;
 use std::ops;
@@ -43,4 +47,27 @@ pub fn get_file_content(filename: &PathBuf) -> Vec<String> {
     let string_form: String =
         fs::read_to_string(filename).expect("Something went wrong reading the file");
     string_form.lines().map(|s| s.to_string()).collect()
+}
+
+pub fn run_file(filename: &PathBuf) {
+    let file_content = get_file_content(filename);
+    let mut file_content_iter = file_content.iter();
+    let map = Map::from_string(file_content_iter.next().unwrap());
+    let mut martians = vec![];
+
+    while let Some(s1) = file_content_iter.next() {
+        if s1.is_empty() {
+            continue;
+        }
+        let s2 = file_content_iter.next().unwrap();
+        martians.push(Martian::from_strings(&map, vec![s1, s2]));
+    }
+
+    for mut martian in martians {
+        match martian.attempt_movements() {
+            Ok(s) | Err(s) => {
+                println!("{}", s)
+            }
+        }
+    }
 }

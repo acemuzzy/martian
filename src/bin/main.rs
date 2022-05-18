@@ -8,6 +8,5 @@ const FILENAME: &str = r"input.txt";
 /// Entry point
 fn main() {
     let path = PathBuf::from(FILENAME);
-    let martian = martian::martian::Martian::from_file(&path);
-    println!("{:?}", martian);
+    martian::run_file(&path);
 }

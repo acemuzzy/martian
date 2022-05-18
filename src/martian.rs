@@ -1,24 +1,24 @@
 //! Main martian module, with code to handle its instantiation and movement
 
 use crate::direction::Direction;
+use crate::map::Map;
 use crate::movement::Movement;
-use crate::{get_file_content, Vec2};
+use crate::Vec2;
 
 use regex::Regex;
 use std::fmt;
-use std::path::PathBuf;
 
 /// The martian structure itself
 #[derive(Debug, PartialEq)]
-pub struct Martian {
-    bounds: Vec2,
+pub struct Martian<'a> {
+    map: &'a Map,
     location: Vec2,
     direction: Direction,
     instructions: Vec<Movement>,
 }
 
 /// String form of the martian (as used e.g. in successful output)
-impl fmt::Display for Martian {
+impl<'a> fmt::Display for Martian<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -28,16 +28,16 @@ impl fmt::Display for Martian {
     }
 }
 
-impl Martian {
+impl<'a> Martian<'a> {
     /// Create a new martian instance, with explicit parameters
     pub fn new(
-        bounds: Vec2,
+        map: &'a Map,
         location: Vec2,
         direction: Direction,
         instructions: Vec<Movement>,
     ) -> Self {
         Martian {
-            bounds,
+            map,
             location,
             direction,
             instructions,
@@ -46,18 +46,10 @@ impl Martian {
 
     /// Create a new martian instances, from a set of strings
     /// (Currently) does no error checking, so mainline only
-    pub fn from_strings(input: Vec<String>) -> Self {
-        // Parse out the bounds (two co-ordinates)
-        let bounds_re = Regex::new(r"^(\d*) (\d*)$").unwrap();
-        let bounds_cap = bounds_re.captures_iter(&input[0]).next().unwrap();
-        let bounds = Vec2::new(
-            bounds_cap[1].parse().unwrap(),
-            bounds_cap[2].parse().unwrap(),
-        );
-
+    pub fn from_strings(map: &'a Map, input: Vec<&str>) -> Self {
         // Parse out the starting position / direction (two co-ordinates, plus a character)
         let start_re = Regex::new(r"^(\d*) (\d*) (\w)$").unwrap();
-        let start_cap = start_re.captures_iter(&input[1]).next().unwrap();
+        let start_cap = start_re.captures_iter(input[0]).next().unwrap();
         let start = Vec2::new(start_cap[1].parse().unwrap(), start_cap[2].parse().unwrap());
 
         let direction: Direction = match &start_cap[3] {
@@ -69,7 +61,7 @@ impl Martian {
         };
 
         // Loop through the instructions
-        let instructions = input[2]
+        let instructions = input[1]
             .chars()
             .map(|c| match &c {
                 'L' => Movement::Left,
@@ -80,18 +72,11 @@ impl Martian {
             .collect();
 
         Martian {
-            bounds,
+            map,
             location: start,
             direction,
             instructions,
         }
-    }
-
-    /// Creates a new martian object from the contents of a given file
-    /// (Currently) panics if that file doesn't exist, or if the instructions are invalid
-    pub fn from_file(filename: &PathBuf) -> Self {
-        let input = get_file_content(filename);
-        Martian::from_strings(input)
     }
 
     /// Attempt to move the martian
@@ -132,9 +117,9 @@ impl Martian {
 
     /// Check if out of bounds
     pub fn out_of_bounds(&self) -> bool {
-        (self.location.y > self.bounds.y)
+        (self.location.y > self.map.bounds.y)
             || (self.location.y < 0)
-            || (self.location.x > self.bounds.x)
+            || (self.location.x > self.map.bounds.x)
             || (self.location.x < 0)
     }
 }

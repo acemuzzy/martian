@@ -64,14 +64,13 @@ mod tests {
             "RFRFRFRF".to_string(),
         ]);
 
-        m.attempt_movements();
+        let res = m.attempt_movements();
 
-        assert_eq!(format!("{}", m), "1 1 E");
+        assert_eq!(res.unwrap(), "1 1 E");
     }
 
     /// Test movement out of bounds fails
     #[test]
-    #[should_panic]
     fn test_movement_oob() {
         let mut m: Martian = Martian::from_strings(vec![
             "5 3".to_string(),
@@ -79,6 +78,11 @@ mod tests {
             "FRRFLLFFRRFLL".to_string(),
         ]);
 
-        m.attempt_movements();
+        let res = m.attempt_movements();
+        if let Err(msg) = res {
+            assert_eq!(msg, "3 3 N LOST");
+        } else {
+            panic!("Failed to get lost!")
+        }
     }
 }

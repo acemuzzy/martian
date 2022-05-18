@@ -1,5 +1,6 @@
 //! Direction module
 
+use crate::Vec2;
 use std::fmt;
 
 /// Directions in which the martian may face
@@ -28,6 +29,7 @@ impl fmt::Display for Direction {
 }
 
 impl Direction {
+    /// Rotate the direction anti-clockwise
     pub fn rotate_left(&self) -> Self {
         match self {
             Direction::North => Direction::West,
@@ -37,12 +39,23 @@ impl Direction {
         }
     }
 
+    /// Rotate the direction clockwise
     pub fn rotate_right(&self) -> Self {
         match self {
             Direction::North => Direction::East,
             Direction::East => Direction::South,
             Direction::South => Direction::West,
             Direction::West => Direction::North,
+        }
+    }
+
+    /// Get a forrward movement vector, based of the current direction
+    pub fn forward_vector(&self) -> Vec2 {
+        match self {
+            Direction::North => Vec2::new(0, 1),
+            Direction::East => Vec2::new(1, 0),
+            Direction::South => Vec2::new(0, -1),
+            Direction::West => Vec2::new(-1, 0),
         }
     }
 }

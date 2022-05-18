@@ -95,7 +95,7 @@ impl Martian {
     }
 
     /// Attempt to move the martian
-    pub fn attempt_movements(&mut self) {
+    pub fn attempt_movements(&mut self) -> Result<String, String> {
         for instruction in self.instructions.clone() {
             match instruction {
                 Movement::Left => {
@@ -107,36 +107,27 @@ impl Martian {
                 Movement::Forward => {
                     self.move_forwards();
 
+                    // We've fallen off - work out where we were, and bail
                     if self.out_of_bounds() {
                         self.move_backwards();
-                        println!("{} LOST", &self);
-                        panic!("LOST");
+                        return Err(format!("{} LOST", &self));
                     }
                 }
             }
         }
 
-        println!("{}", &self);
-    }
-
-    /// Get a forrward movement vector, based of the martian's current direction
-    pub fn forward_vector(&self) -> Vec2 {
-        match self.direction {
-            Direction::North => Vec2::new(0, 1),
-            Direction::East => Vec2::new(1, 0),
-            Direction::South => Vec2::new(0, -1),
-            Direction::West => Vec2::new(-1, 0),
-        }
+        // We've finished!
+        Ok(format!("{}", &self))
     }
 
     /// Move the martian one space in the direction it's facing
     pub fn move_forwards(&mut self) {
-        self.location += self.forward_vector();
+        self.location += self.direction.forward_vector();
     }
 
     /// Move the martian one space in the opposite direction to how it's facing
     pub fn move_backwards(&mut self) {
-        self.location += self.forward_vector() * -1;
+        self.location += self.direction.forward_vector() * -1;
     }
 
     /// Check if out of bounds

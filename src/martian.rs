@@ -10,15 +10,14 @@ use std::fmt;
 
 /// The martian structure itself
 #[derive(Debug, PartialEq)]
-pub struct Martian<'a> {
-    map: &'a Map,
+pub struct Martian {
     location: Vec2,
     direction: Direction,
     instructions: Vec<Movement>,
 }
 
 /// String form of the martian (as used e.g. in successful output)
-impl<'a> fmt::Display for Martian<'a> {
+impl fmt::Display for Martian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -28,16 +27,10 @@ impl<'a> fmt::Display for Martian<'a> {
     }
 }
 
-impl<'a> Martian<'a> {
+impl Martian {
     /// Create a new martian instance, with explicit parameters
-    pub fn new(
-        map: &'a Map,
-        location: Vec2,
-        direction: Direction,
-        instructions: Vec<Movement>,
-    ) -> Self {
+    pub fn new(location: Vec2, direction: Direction, instructions: Vec<Movement>) -> Self {
         Martian {
-            map,
             location,
             direction,
             instructions,
@@ -46,7 +39,7 @@ impl<'a> Martian<'a> {
 
     /// Create a new martian instances, from a set of strings
     /// (Currently) does no error checking, so mainline only
-    pub fn from_strings(map: &'a Map, input: Vec<&str>) -> Self {
+    pub fn from_strings(input: Vec<&str>) -> Self {
         // Parse out the starting position / direction (two co-ordinates, plus a character)
         let start_re = Regex::new(r"^(\d*) (\d*) (\w)$").unwrap();
         let start_cap = start_re.captures_iter(input[0]).next().unwrap();
@@ -72,7 +65,6 @@ impl<'a> Martian<'a> {
             .collect();
 
         Martian {
-            map,
             location: start,
             direction,
             instructions,
@@ -80,7 +72,7 @@ impl<'a> Martian<'a> {
     }
 
     /// Attempt to move the martian
-    pub fn attempt_movements(&mut self) -> Result<String, String> {
+    pub fn attempt_movements(&mut self, map: &mut Map) -> Result<String, String> {
         for instruction in self.instructions.clone() {
             match instruction {
                 Movement::Left => {
@@ -93,9 +85,13 @@ impl<'a> Martian<'a> {
                     self.move_forwards();
 
                     // We've fallen off - work out where we were, and bail
-                    if self.out_of_bounds() {
+                    if self.out_of_bounds(map) {
                         self.move_backwards();
-                        return Err(format!("{} LOST", &self));
+
+                        if !map.scents.contains(&self.location) {
+                            map.scents.push(self.location.clone());
+                            return Err(format!("{} LOST", &self));
+                        }
                     }
                 }
             }
@@ -116,10 +112,10 @@ impl<'a> Martian<'a> {
     }
 
     /// Check if out of bounds
-    pub fn out_of_bounds(&self) -> bool {
-        (self.location.y > self.map.bounds.y)
+    pub fn out_of_bounds(&self, map: &Map) -> bool {
+        (self.location.y > map.bounds.y)
             || (self.location.y < 0)
-            || (self.location.x > self.map.bounds.x)
+            || (self.location.x > map.bounds.x)
             || (self.location.x < 0)
     }
 }

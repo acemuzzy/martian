@@ -13,7 +13,7 @@ use std::ops;
 use std::path::PathBuf;
 
 /// A simple 2-vector
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Vec2 {
     x: i32,
     y: i32,
@@ -52,7 +52,7 @@ pub fn get_file_content(filename: &PathBuf) -> Vec<String> {
 pub fn run_file(filename: &PathBuf) {
     let file_content = get_file_content(filename);
     let mut file_content_iter = file_content.iter();
-    let map = Map::from_string(file_content_iter.next().unwrap());
+    let mut map = Map::from_string(file_content_iter.next().unwrap());
     let mut martians = vec![];
 
     while let Some(s1) = file_content_iter.next() {
@@ -60,11 +60,11 @@ pub fn run_file(filename: &PathBuf) {
             continue;
         }
         let s2 = file_content_iter.next().unwrap();
-        martians.push(Martian::from_strings(&map, vec![s1, s2]));
+        martians.push(Martian::from_strings(vec![s1, s2]));
     }
 
     for mut martian in martians {
-        match martian.attempt_movements() {
+        match martian.attempt_movements(&mut map) {
             Ok(s) | Err(s) => {
                 println!("{}", s)
             }

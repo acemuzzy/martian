@@ -3,10 +3,17 @@
 //! Note this (currently) assumes a hard-coded input file at input.txt.
 use std::path::PathBuf;
 
-const FILENAME: &str = r"input.txt";
-
 /// Entry point
 fn main() {
-    let path = PathBuf::from(FILENAME);
-    martian::run_file(&path);
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() != 2 {
+        println!("You must provide a single filename parameter");
+        return;
+    }
+    let path = PathBuf::from(&args[1]);
+    let output = martian::run_file(&path);
+    for line in output {
+        println!("{}", line);
+    }
 }

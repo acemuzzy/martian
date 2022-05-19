@@ -49,7 +49,9 @@ pub fn get_file_content(filename: &PathBuf) -> Vec<String> {
     string_form.lines().map(|s| s.to_string()).collect()
 }
 
-pub fn run_file(filename: &PathBuf) {
+pub fn run_file(filename: &PathBuf) -> Vec<String> {
+    let mut output = vec![];
+
     let file_content = get_file_content(filename);
     let mut file_content_iter = file_content.iter();
     let mut map = Map::from_string(file_content_iter.next().unwrap());
@@ -66,8 +68,10 @@ pub fn run_file(filename: &PathBuf) {
     for mut martian in martians {
         match martian.attempt_movements(&mut map) {
             Ok(s) | Err(s) => {
-                println!("{}", s)
+                output.push(format!("{}", s));
             }
         }
     }
+
+    output
 }

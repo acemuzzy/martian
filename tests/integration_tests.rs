@@ -12,10 +12,7 @@ fn test_from_file() {
     let mut path = PathBuf::new();
     path.push("tests");
     path.push("input.txt");
-    
+
     let output = run_file(&path);
-    assert_eq!(
-        output, 
-        vec!["1 1 E", "3 3 N LOST", "2 3 S"]
-    );
+    assert_eq!(output, vec!["1 1 E", "3 3 N LOST", "2 3 S"]);
 }

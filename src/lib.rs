@@ -68,7 +68,7 @@ pub fn run_file(filename: &PathBuf) -> Vec<String> {
     for mut martian in martians {
         match martian.attempt_movements(&mut map) {
             Ok(s) | Err(s) => {
-                output.push(format!("{}", s));
+                output.push(s);
             }
         }
     }

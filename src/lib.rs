@@ -26,6 +26,7 @@ impl Vec2 {
     }
 }
 
+/// Operator overload for +
 impl ops::AddAssign for Vec2 {
     fn add_assign(&mut self, rhs: Vec2) {
         self.x += rhs.x;
@@ -33,6 +34,7 @@ impl ops::AddAssign for Vec2 {
     }
 }
 
+/// Operator overload for +=
 impl ops::Mul<i32> for Vec2 {
     type Output = Vec2;
 
@@ -43,28 +45,33 @@ impl ops::Mul<i32> for Vec2 {
 
 /// Read the set of lines from a file.
 /// (Currently) panics if the file does not exist.
-pub fn get_file_content(filename: &PathBuf) -> Vec<String> {
-    let string_form: String =
-        fs::read_to_string(filename).expect("Something went wrong reading the file");
-    string_form.lines().map(|s| s.to_string()).collect()
+pub fn get_file_content(filename: &PathBuf) -> Result<Vec<String>, String> {
+    let string_form: String = fs::read_to_string(filename)
+        .map_err(|_| "Error loading file - check it exists and is readable".to_string())?;
+    Ok(string_form.lines().map(|s| s.to_string()).collect())
 }
 
-pub fn run_file(filename: &PathBuf) -> Vec<String> {
-    let mut output = vec![];
-
-    let file_content = get_file_content(filename);
-    let mut file_content_iter = file_content.iter();
-    let mut map = Map::from_string(file_content_iter.next().unwrap());
+/// Run a full input file.
+///
+/// This involves opening the file, loading the bounds & martians, and then executing them in series.
+pub fn run_file(filename: &PathBuf) -> Result<Vec<String>, String> {
+    let file_content = get_file_content(filename)?;
+    let mut file_content_iter = file_content.iter().filter(|x| !x.is_empty());
+    let mut map = Map::from_string(
+        file_content_iter
+            .next()
+            .ok_or_else(|| "File has no valid rows!".to_string())?,
+    )?;
     let mut martians = vec![];
 
     while let Some(s1) = file_content_iter.next() {
-        if s1.is_empty() {
-            continue;
-        }
-        let s2 = file_content_iter.next().unwrap();
-        martians.push(Martian::from_strings(vec![s1, s2]));
+        let s2 = file_content_iter
+            .next()
+            .ok_or_else(|| "Martian input line is unpaired!".to_string())?;
+        martians.push(Martian::from_strings(vec![s1, s2])?);
     }
 
+    let mut output = vec![];
     for mut martian in martians {
         match martian.attempt_movements(&mut map) {
             Ok(s) | Err(s) => {
@@ -73,5 +80,5 @@ pub fn run_file(filename: &PathBuf) -> Vec<String> {
         }
     }
 
-    output
+    Ok(output)
 }

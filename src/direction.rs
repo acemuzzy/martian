@@ -29,6 +29,17 @@ impl fmt::Display for Direction {
 }
 
 impl Direction {
+    /// Parse
+    pub fn from_char(c: char) -> Result<Self, String> {
+        match c {
+            'N' => Ok(Direction::North),
+            'S' => Ok(Direction::South),
+            'E' => Ok(Direction::East),
+            'W' => Ok(Direction::West),
+            d => Err(format!("Invaid direction {}", d)),
+        }
+    }
+
     /// Rotate the direction anti-clockwise
     pub fn rotate_left(&self) -> Self {
         match self {
@@ -56,6 +67,40 @@ impl Direction {
             Direction::East => Vec2::new(1, 0),
             Direction::South => Vec2::new(0, -1),
             Direction::West => Vec2::new(-1, 0),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Direction;
+
+    /// Test symmetry
+    #[test]
+    fn test_symmetry() {
+        for d in vec![
+            Direction::North,
+            Direction::South,
+            Direction::East,
+            Direction::West,
+        ] {
+            assert_eq!(d, d.rotate_left().rotate_right());
+        }
+    }
+
+    /// Test symmetry
+    #[test]
+    fn test_valid() {
+        for c in vec!['N', 'S', 'E', 'W'] {
+            assert!(Direction::from_char(c).is_ok());
+        }
+    }
+
+    /// Test symmetry
+    #[test]
+    fn test_invalid() {
+        for c in vec!['n', 'X', '1'] {
+            assert!(Direction::from_char(c).is_err());
         }
     }
 }

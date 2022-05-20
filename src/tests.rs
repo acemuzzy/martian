@@ -12,7 +12,7 @@ mod tests {
     /// Test we can parse a martian from a simple set of strings
     #[test]
     fn test_parsing() {
-        let m: Martian = Martian::from_strings(vec!["3 4 E", "LRF"]);
+        let m: Martian = Martian::from_strings(vec!["3 4 E", "LRF"]).unwrap();
 
         assert_eq!(
             m,
@@ -27,7 +27,7 @@ mod tests {
     /// Test we can parse a martian from a fuller set of strings
     #[test]
     fn test_parsing_multidigit() {
-        let m: Martian = Martian::from_strings(vec!["33 44 W", "FFFFFF"]);
+        let m: Martian = Martian::from_strings(vec!["33 44 W", "FFFFFF"]).unwrap();
 
         assert_eq!(
             m,
@@ -50,7 +50,7 @@ mod tests {
     #[test]
     fn test_movement() {
         let mut map = Map::new(Vec2::new(5, 3));
-        let mut m: Martian = Martian::from_strings(vec!["1 1 E", "RFRFRFRF"]);
+        let mut m: Martian = Martian::from_strings(vec!["1 1 E", "RFRFRFRF"]).unwrap();
 
         let res = m.attempt_movements(&mut map);
 
@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn test_movement_oob() {
         let mut map = Map::new(Vec2::new(5, 3));
-        let mut m: Martian = Martian::from_strings(vec!["3 2 N", "FRRFLLFFRRFLL"]);
+        let mut m: Martian = Martian::from_strings(vec!["3 2 N", "FRRFLLFFRRFLL"]).unwrap();
 
         let res = m.attempt_movements(&mut map);
         if let Err(msg) = res {

@@ -38,37 +38,38 @@ impl Martian {
     }
 
     /// Create a new martian instances, from a set of strings
-    /// (Currently) does no error checking, so mainline only
-    pub fn from_strings(input: Vec<&str>) -> Self {
+    pub fn from_strings(input: Vec<&str>) -> Result<Self, String> {
         // Parse out the starting position / direction (two co-ordinates, plus a character)
+        //
+        // Use unwrap on the regex construction & subsequent parsing for simplicity's sake:
+        // - the former is tested in all the UTs etc, and can't subsequently fail at runtime
+        // - the latter must match given the form of the regex
+        //
+        // Do handle failure of the regex matching itself, however.
         let start_re = Regex::new(r"^(\d*) (\d*) (\w)$").unwrap();
-        let start_cap = start_re.captures_iter(input[0]).next().unwrap();
-        let start = Vec2::new(start_cap[1].parse().unwrap(), start_cap[2].parse().unwrap());
+        let start_cap = start_re
+            .captures_iter(input[0])
+            .next()
+            .ok_or_else(|| "Failed to capture martian start details".to_string())?;
 
-        let direction: Direction = match &start_cap[3] {
-            "N" => Direction::North,
-            "S" => Direction::South,
-            "E" => Direction::East,
-            "W" => Direction::West,
-            d => panic!("Invaid direction {}", d),
-        };
+        let start = Vec2::new(start_cap[1].parse().unwrap(), start_cap[2].parse().unwrap());
+        let direction = Direction::from_char(start_cap[3].chars().next().unwrap())?;
 
         // Loop through the instructions
-        let instructions = input[1]
-            .chars()
-            .map(|c| match &c {
-                'L' => Movement::Left,
-                'R' => Movement::Right,
-                'F' => Movement::Forward,
-                m => panic!("Invalid movement {}", m),
-            })
-            .collect();
+        let instructions: Result<Vec<Movement>, String> =
+            input[1].chars().map(Movement::from_char).collect();
+        let instructions = match instructions {
+            Ok(i) => i,
+            Err(e) => {
+                return Err(e);
+            }
+        };
 
-        Martian {
+        Ok(Martian {
             location: start,
             direction,
             instructions,
-        }
+        })
     }
 
     /// Attempt to move the martian

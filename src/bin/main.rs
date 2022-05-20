@@ -13,7 +13,14 @@ fn main() {
     }
     let path = PathBuf::from(&args[1]);
     let output = martian::run_file(&path);
-    for line in output {
-        println!("{}", line);
+    match output {
+        Ok(output) => {
+            for line in output {
+                println!("{}", line);
+            }
+        }
+        Err(err) => {
+            println!("Failed with error: {}", err);
+        }
     }
 }

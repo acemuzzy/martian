@@ -19,17 +19,25 @@ impl Map {
         }
     }
 
-    /// Create a new martian instances, from a set of strings
-    /// (Currently) does no error checking, so mainline only
-    pub fn from_string(input: &str) -> Self {
+    /// Instantiate a `Map` based of string input
+    pub fn from_string(input: &str) -> Result<Self, String> {
         // Parse out the bounds (two co-ordinates)
+        //
+        // Use unwrap on the regex construction & subsequent parsing for simplicity's sake:
+        // - the former is tested in all the UTs etc, and can't subsequently fail at runtime
+        // - the latter must match given the form of the regex
+        //
+        // Do handle failure of the regex matching itself, however.
         let bounds_re = Regex::new(r"^(\d*) (\d*)$").unwrap();
-        let bounds_cap = bounds_re.captures_iter(input).next().unwrap();
+        let bounds_cap = bounds_re
+            .captures_iter(input)
+            .next()
+            .ok_or_else(|| "Failed to capture map co-ordinates".to_string())?;
         let bounds = Vec2::new(
             bounds_cap[1].parse().unwrap(),
             bounds_cap[2].parse().unwrap(),
         );
 
-        Self::new(bounds)
+        Ok(Self::new(bounds))
     }
 }

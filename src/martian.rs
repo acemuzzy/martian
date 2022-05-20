@@ -72,7 +72,7 @@ impl Martian {
         })
     }
 
-    /// Attempt to move the martian
+    /// Attempt to move the martian, by iterating through its instructions
     pub fn attempt_movements(&mut self, map: &mut Map) -> Result<String, String> {
         for instruction in self.instructions.clone() {
             match instruction {
@@ -85,7 +85,11 @@ impl Martian {
                 Movement::Forward => {
                     self.move_forwards();
 
-                    // We've fallen off - work out where we were, and bail
+                    // We would have fallen off!
+                    //
+                    // Rewind to where we were, and then either:
+                    // - mark a new scent and bail, or,
+                    // - use the scent and just ignore the movement by continuing
                     if self.out_of_bounds(map) {
                         self.move_backwards();
 
@@ -112,7 +116,7 @@ impl Martian {
         self.location += self.direction.forward_vector() * -1;
     }
 
-    /// Check if out of bounds
+    /// Check if out of bounds, by comparing to the map
     pub fn out_of_bounds(&self, map: &Map) -> bool {
         (self.location.y > map.bounds.y)
             || (self.location.y < 0)

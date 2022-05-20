@@ -1,4 +1,6 @@
-//! Integration test functions
+//! Integration test functions.
+//!
+//! These load various test cases from files in the same directory, and check they each work as expected.
 
 extern crate martian;
 

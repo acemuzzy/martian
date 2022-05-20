@@ -62,8 +62,9 @@ pub fn run_file(filename: &PathBuf) -> Result<Vec<String>, String> {
             .next()
             .ok_or_else(|| "File has no valid rows!".to_string())?,
     )?;
-    let mut martians = vec![];
 
+    // Load the martians (which should come in paired lines)
+    let mut martians = vec![];
     while let Some(s1) = file_content_iter.next() {
         let s2 = file_content_iter
             .next()
@@ -71,6 +72,7 @@ pub fn run_file(filename: &PathBuf) -> Result<Vec<String>, String> {
         martians.push(Martian::from_strings(vec![s1, s2])?);
     }
 
+    // Execute the martians in series
     let mut output = vec![];
     for mut martian in martians {
         match martian.attempt_movements(&mut map) {

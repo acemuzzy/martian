@@ -44,7 +44,7 @@ impl ops::Mul<i32> for Vec2 {
 }
 
 /// Read the set of lines from a file.
-/// (Currently) panics if the file does not exist.
+/// Returns `Err` if the file does not exist (or cannot be read).
 pub fn get_file_content(filename: &PathBuf) -> Result<Vec<String>, String> {
     let string_form: String = fs::read_to_string(filename)
         .map_err(|_| "Error loading file - check it exists and is readable".to_string())?;
